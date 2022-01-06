@@ -5,7 +5,7 @@ const userRouter = require("./Routers/userRouter");
 const app = express();
 const port = process.env.PORT || 3000;
 
-//Insert data in user collection and getting from api
+//Insert data in user collection and getting from API and
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 // 3: we need to register our router 

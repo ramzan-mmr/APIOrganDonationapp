@@ -2,6 +2,7 @@ const { response, Router } = require("express");
 const express = require("express");
 require("./dbConnection/conn.js");
 const userRouter = require("./Routers/userRouter");
+const {createProxyMiddleware} = require("http-proxy-middleware")
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -9,7 +10,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 // 3: we need to register our router 
-app.use(userRouter);
+app.use(userRouter,createProxyMiddleware({ target: 'https://mydonatmeapi.herokuapp.com',secure: false, changeOrigin: true }));
 app.listen(port, () => {
     console.log(`connection is setup at ${port}`);
 });

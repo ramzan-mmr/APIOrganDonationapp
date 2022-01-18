@@ -11,6 +11,7 @@ const jwt = require('jsonwebtoken')
 const validator = require('validator')
 const multer = require('multer')
 const cloudinary = require('../../helper/imageUpload');
+const cors = require('cors')
 const storage = multer.diskStorage({
     // destination: function (req, file, cb) {
     //     cb(null, "./uploads/");
@@ -147,7 +148,7 @@ router.delete("/Users/:id", async (req, res) => {
 
 // Loign Authentication 
 
-router.post("/Login", (req, res) => {
+router.post("/Login", cors(), (req, res) => {
     User.find({ Email: req.body.Email })
         .exec()
         .then(user => {
@@ -173,7 +174,7 @@ router.post("/Login", (req, res) => {
                         IsActive: user[0].IsActive,
                         UserType: user[0].UserType
                     },
-                        'this is Donate Me application data',
+                        'mian12345',
                         {
                             expiresIn: "24h"
                         }
@@ -254,7 +255,6 @@ router.post("/DonarsRecod", async (req, res) => {
 
 // Hospital 
 
-
 //Registration of new hospital
 router.post("/hospital/addHospital", async (req, res) => {
     try {
@@ -318,7 +318,26 @@ router.get("/hospital", async (req, res) => {
         res.send(e);
     }
 })
-
+//Delete hospital
+router.delete("/hospital/:id", varifyToken, async (req, res) => {
+    const DeleteHospital = await Hospital.findByIdAndDelete(req.params.id);
+    try {
+        jwt.verify(req.token, 'mian12345',(err, authData)=>{
+            if(err){
+                res.sendStatus(403);
+            }
+            else{
+                    res.json({
+                        status: "SUCCESS",
+                        message: "Hospital Delete successfully",
+                        data:DeleteHospital
+                    })
+            }
+        })
+    } catch (e) {
+        res.status(500).send(e);
+    }
+})
 // Doctor 
 
 
@@ -494,4 +513,18 @@ router.get("/dropdownOrgan", async (req, res) => {
     }
 })
 
+
+//varifyToken
+function varifyToken(req,res,next){
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined'){
+        const bearer= bearerHeader.split(' ');
+        const bearerToken = bearer[1];
+        req.token = bearerToken;
+        next();
+    }
+    else{
+        res.sendStatus(403)
+    }
+}
 module.exports = router;

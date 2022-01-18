@@ -322,24 +322,63 @@ router.get("/hospital", async (req, res) => {
 router.delete("/hospital/:id", varifyToken, async (req, res) => {
     const DeleteHospital = await Hospital.findByIdAndDelete(req.params.id);
     try {
-        jwt.verify(req.token, 'mian12345',(err, authData)=>{
-            if(err){
+        jwt.verify(req.token, 'mian12345', (err, authData) => {
+            if (err) {
                 res.sendStatus(403);
             }
-            else{
-                    res.json({
-                        status: "SUCCESS",
-                        message: "Hospital Delete successfully",
-                        data:DeleteHospital
-                    })
+            else {
+                res.json({
+                    status: "SUCCESS",
+                    message: "Hospital Delete successfully",
+                    data: DeleteHospital
+                })
             }
         })
     } catch (e) {
         res.status(500).send(e);
     }
 })
-// Doctor 
+//Edit Hospital 
+router.post("/hospitalEdit", varifyToken, async (req, res) => {
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        }
+        else {
+            editHospital();
+        }
+    })
+   async function editHospital() {
+        const EditHospital = await Hospital.findByIdAndUpdate(req.body._id, {
+            Name: req.body.Name,
+            Email: req.body.Email,
+            Location: req.body.Location,
+            HelpLine: req.body.HelpLine,
+            HospDis: req.body.HospDis
+        }, { new: true })
+            .then(EditHospital => {
+                if (!EditHospital) {
+                    res.json({
+                        status: "FAILED",
+                        message: "Not found with this ID",
+                    })
+                }
+                else {
+                    res.json({
+                        status: "SUCCESS",
+                        message: "Hospital Edit successfully",
+                    })
+                }
+            })
+            .catch(err => {
+                return res.status(500).send({
+                    message: "Error updating note with id " + req.body._id
+                });
+            })
+    }
+})
 
+// Doctor 
 
 //Registration of new Doctor 
 router.post("/Doctor/addDoctor", async (req, res) => {
@@ -470,17 +509,17 @@ router.get("/Organ", async (req, res) => {
 })
 
 // Organ in names in dropdown
-router.post("/newOrgan",async(req,res) =>{
+router.post("/newOrgan", async (req, res) => {
     try {
         const organListName = new OrganListName(req.body);
-     
-            const createOrgan = await organListName.save();
-            res.json({
-                status: "SUCCESS",
-                message: "Organ Register successfully",
-                data: createOrgan,
-            })
-        }
+
+        const createOrgan = await organListName.save();
+        res.json({
+            status: "SUCCESS",
+            message: "Organ Register successfully",
+            data: createOrgan,
+        })
+    }
     catch (e) {
         res.status(400).send(e);
         res.json({
@@ -515,15 +554,15 @@ router.get("/dropdownOrgan", async (req, res) => {
 
 
 //varifyToken
-function varifyToken(req,res,next){
+function varifyToken(req, res, next) {
     const bearerHeader = req.headers['authorization'];
-    if (typeof bearerHeader !== 'undefined'){
-        const bearer= bearerHeader.split(' ');
+    if (typeof bearerHeader !== 'undefined') {
+        const bearer = bearerHeader.split(' ');
         const bearerToken = bearer[1];
         req.token = bearerToken;
         next();
     }
-    else{
+    else {
         res.sendStatus(403)
     }
 }

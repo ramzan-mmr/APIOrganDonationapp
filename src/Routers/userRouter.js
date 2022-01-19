@@ -11,7 +11,8 @@ const jwt = require('jsonwebtoken')
 const validator = require('validator')
 const multer = require('multer')
 const cloudinary = require('../../helper/imageUpload');
-const cors = require('cors')
+const cors = require('cors');
+const PortalUser = require("../models/PortalUser");
 const storage = multer.diskStorage({
     // destination: function (req, file, cb) {
     //     cb(null, "./uploads/");
@@ -475,7 +476,7 @@ router.get("/DoctorAndHospital", async (req, res) => {
 })
 
 // Saving new organ from admin 
-router.post("/Organ", upload.single('avatar'),varifyToken, async (req, res, next) => {
+router.post("/Organ", upload.single('avatar'), varifyToken, async (req, res, next) => {
     jwt.verify(req.token, 'mian12345', (err, authData) => {
         if (err) {
             res.sendStatus(403);
@@ -500,13 +501,13 @@ router.post("/Organ", upload.single('avatar'),varifyToken, async (req, res, next
         })
         const createOrgan = await organ.save();
         const createOrganListName = await organListName.save();
-        if(!result){
+        if (!result) {
             res.json({
                 status: "FAILED",
                 message: "Not found with this ID",
             })
         }
-        else{
+        else {
             res.json({
                 status: "SUCCESS",
                 message: "Organ Registration Successfully",
@@ -604,6 +605,92 @@ router.delete("/Organ/:id", varifyToken, async (req, res) => {
     }
 })
 
+// Admin Login APi start here 
+//Login API
+router.post("/portalLogin", async (req, res) => {
+    PortalUser.find({ UserName: req.body.UserName })
+        .exec()
+        .then(PortalUser => {
+            if (PortalUser.length < 1) {
+                res.json({
+                    status: "FAILED",
+                    message: "UserName Or Password is invalid"
+                })
+            }
+            bcrypt.compare(req.body.Password, PortalUser[0].Password, (err, result) => {
+                if (!result) {
+                    res.json({
+                        status: "FAILED",
+                        message: "UserName Or Password is invalid"
+                    })
+                }
+                else if (result) {
+                    const token = jwt.sign({
+                        _id: PortalUser[0]._id,
+                        Name: PortalUser[0].Name,
+                        UserName: PortalUser[0].UserName,
+                        CreatedON: PortalUser[0].CreatedON,
+                        Role: PortalUser[0].Role,
+                        IsActive: PortalUser[0].IsActive,
+                    },
+                        'mian12345',
+                        {
+                            expiresIn: "24h"
+                        }
+                    );
+                    const result = {
+                        _id: PortalUser[0]._id,
+                        Name: PortalUser[0].Name,
+                        UserName: PortalUser[0].UserName,
+                        IsActive: PortalUser[0].IsActive,
+                        CreatedON: PortalUser[0].CreatedON,
+                        Role: PortalUser[0].Role,
+                        token: token
+                    }
+                    res.status(200).json({
+                        status: "SUCCESS",
+                        message: "User Login Successfully",
+                        data: result,
+                    });
+                }
+            })
+        })
+        .catch((error) => {
+            res.status(500).json({
+                error
+            })
+        })
+})
+//Add New user in Portal 
+router.post("/addportalUser", async (req, res) => {
+    try {
+        const user = new PortalUser(req.body);
+        const validUserName = await PortalUser.find({ UserName: req.body.UserName })
+        console.log(validUserName)
+        if (validUserName.length > 0) {
+            res.json({
+                status: "FAILED",
+                message: "This user already register.",
+            })
+        }
+        else {
+            const createuser = await user.save();
+            res.json({
+                status: "SUCCESS",
+                message: "New User register Successfully",
+                data: createuser,
+            })
+        }
+    }
+    catch (e) {
+        res.status(400).send(e);
+        res.json({
+            status: "FAILED",
+            message: "SignUp FAILED"
+        })
+    }
+})
+//End here
 
 //varifyToken
 function varifyToken(req, res, next) {

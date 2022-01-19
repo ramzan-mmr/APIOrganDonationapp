@@ -146,13 +146,21 @@ router.patch("/Users/:id", async (req, res) => {
 
 // Delete the User by id
 
-router.delete("/Users/:id", async (req, res) => {
+router.delete("/Users/:id", varifyToken, async (req, res) => {
+    const DeleteUser = await User.findByIdAndDelete(req.params.id);
     try {
-        const DeleteUser = await User.findByIdAndDelete(req.params.id);
-        if (!req.params.id) {
-            return res.status(400).send()
-        }
-        res.send(DeleteUser);
+        jwt.verify(req.token, 'mian12345', (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+            }
+            else {
+                res.json({
+                    status: "SUCCESS",
+                    message: "User Delete successfully",
+                    // data: DeleteHospital
+                })
+            }
+        })
     } catch (e) {
         res.status(500).send(e);
     }
@@ -360,7 +368,7 @@ router.post("/hospitalEdit", varifyToken, async (req, res) => {
             editHospital();
         }
     })
-   async function editHospital() {
+    async function editHospital() {
         const EditHospital = await Hospital.findByIdAndUpdate(req.body._id, {
             Name: req.body.Name,
             Email: req.body.Email,
@@ -467,10 +475,16 @@ router.get("/DoctorAndHospital", async (req, res) => {
 })
 
 // Saving new organ from admin 
-router.post("/Organ", upload.single('avatar'), async (req, res, next) => {
-
-    console.log(req.body.userID)
-    try {
+router.post("/Organ", upload.single('avatar'),varifyToken, async (req, res, next) => {
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        }
+        else {
+            CreateNewOrgan();
+        }
+    })
+    async function CreateNewOrgan() {
         const result = await cloudinary.uploader.upload(req.file.path, {
             public_id: `${req.body.userID}_avatar`,
             crop: 'fill'
@@ -481,19 +495,24 @@ router.post("/Organ", upload.single('avatar'), async (req, res, next) => {
             isActive: req.body.isActive,
             userID: req.body.userID
         });
+        const organListName = new OrganListName({
+            organName: req.body.organName
+        })
         const createOrgan = await organ.save();
-        res.json({
-            status: "SUCCESS",
-            message: "doctor Registration Successfully",
-            data: createOrgan,
-        })
-    }
-    catch (e) {
-        res.status(400).send(e);
-        res.json({
-            status: "FAILED",
-            message: "Registration FAILED"
-        })
+        const createOrganListName = await organListName.save();
+        if(!result){
+            res.json({
+                status: "FAILED",
+                message: "Not found with this ID",
+            })
+        }
+        else{
+            res.json({
+                status: "SUCCESS",
+                message: "Organ Registration Successfully",
+                data: createOrgan,
+            })
+        }
     }
 })
 
@@ -561,6 +580,27 @@ router.get("/dropdownOrgan", async (req, res) => {
     }
     catch (e) {
         res.send(e);
+    }
+})
+
+//Delete Organ by ID
+router.delete("/Organ/:id", varifyToken, async (req, res) => {
+    const DeleteOrgan = await Organ.findByIdAndDelete(req.params.id);
+    try {
+        jwt.verify(req.token, 'mian12345', (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+            }
+            else {
+                res.json({
+                    status: "SUCCESS",
+                    message: "Organ Delete successfully",
+                    // data: DeleteOrgan
+                })
+            }
+        })
+    } catch (e) {
+        res.status(500).send(e);
     }
 })
 

@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 // 3: we need to register our router 
-app.use(userRouter,createProxyMiddleware({ target: 'https://mydonatmeapi.herokuapp.com',secure: false, changeOrigin: true }));
+app.use(userRouter);
 app.listen(port, () => {
     console.log(`connection is setup at ${port}`);
 });

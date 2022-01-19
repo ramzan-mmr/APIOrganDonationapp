@@ -10,7 +10,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "proxy": "https://mydonatmeapi.herokuapp.com",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.27.1",

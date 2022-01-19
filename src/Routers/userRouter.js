@@ -92,7 +92,19 @@ router.post("/Users", async (req, res) => {
 router.get("/Users", async (req, res) => {
     try {
         const data = await User.find();
-        res.send(data);
+        if (data.length >= 1) {
+            res.json({
+                status: "SUCCESS",
+                message: "record found",
+                data: data
+            })
+        }
+        else {
+            res.json({
+                status: "FAILED",
+                message: "No Record Found"
+            })
+        }
     }
     catch (e) {
         res.send(e);

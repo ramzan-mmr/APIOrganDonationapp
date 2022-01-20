@@ -247,7 +247,88 @@ router.post("/Donars", async (req, res) => {
         })
     }
 })
-
+//Get All Donars
+router.get("/Donars",async (req,res)=>{
+    try {
+        const donars = await Donar.find();
+        if (donars.length >= 1) {
+            res.json({
+                status: "SUCCESS",
+                message: "record found",
+                data: donars
+            })
+        }
+        else {
+            res.json({
+                status: "FAILED",
+                message: "No Record Found"
+            })
+        }
+    }
+    catch (e) {
+        res.send(e);
+    }
+})
+//Delete Donars
+router.delete("/Donars/:id", varifyToken, async (req, res) => {
+    const DeleteDonars = await Donar.findByIdAndDelete(req.params.id);
+    try {
+        jwt.verify(req.token, 'mian12345', (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+            }
+            else {
+                res.json({
+                    status: "SUCCESS",
+                    message: "Donar Delete successfully",
+                    // data: DeleteHospital
+                })
+            }
+        })
+    } catch (e) {
+        res.status(500).send(e);
+    }
+})
+//Editing Donars
+router.post("/donarEdit", varifyToken, async (req, res) => {
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        }
+        else {
+            editDonar();
+        }
+    })
+    async function editDonar() {
+        const EditDonars = await Donar.findByIdAndUpdate(req.body._id, {
+            name: req.body.name,
+            cnic: req.body.cnic,
+            dateOfBirth: req.body.dateOfBirth,
+            organ: req.body.organ,
+            phoneNo: req.body.phoneNo,
+            address:req.body.address
+        }, { new: true })
+            .then(EditDonars => {
+                if (!EditDonars) {
+                    res.json({
+                        status: "FAILED",
+                        message: "Not found with this ID",
+                    })
+                }
+                else {
+                    res.json({
+                        status: "SUCCESS",
+                        message: "Donar Edit successfully",
+                    })
+                }
+            })
+            .catch(err => {
+                return res.status(500).send({
+                    message: "Error updating note with id " + req.body._id
+                });
+            })
+    }
+})
 //Getting Data for user view 
 router.post("/DonarsRecod", async (req, res) => {
     console.log(req.body.organName)
@@ -275,7 +356,6 @@ router.post("/DonarsRecod", async (req, res) => {
 })
 
 // Hospital 
-
 //Registration of new hospital
 router.post("/hospital/addHospital", async (req, res) => {
     try {
@@ -688,6 +768,28 @@ router.post("/addportalUser", async (req, res) => {
             status: "FAILED",
             message: "SignUp FAILED"
         })
+    }
+})
+//Get all user in portal
+router.get("/portaluser", async (req, res) => {
+    try {
+        const portalUser = await PortalUser.find();
+        if (portalUser.length >= 1) {
+            res.json({
+                status: "SUCCESS",
+                message: "record found",
+                data: portalUser
+            })
+        }
+        else {
+            res.json({
+                status: "FAILED",
+                message: "No Record Found"
+            })
+        }
+    }
+    catch (e) {
+        res.send(e);
     }
 })
 //End here

@@ -556,7 +556,7 @@ router.get("/DoctorAndHospital", async (req, res) => {
 })
 
 // Saving new organ from admin 
-router.post("/Organ", upload.single('avatar'), varifyToken, async (req, res, next) => {
+router.post("/Organ",varifyToken, upload.single('avatar'), async (req, res) => {
     try {
         jwt.verify(req.token, 'mian12345', (err, authData) => {
             if (err) {
@@ -564,7 +564,10 @@ router.post("/Organ", upload.single('avatar'), varifyToken, async (req, res, nex
                 res.send(err)
             }
             else {
-                CreateNewOrgan();
+                res.json({
+                    status: "successful",
+                    message: "Not found with this ID",
+                })
             }
         })
     }

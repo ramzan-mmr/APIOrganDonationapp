@@ -248,7 +248,7 @@ router.post("/Donars", async (req, res) => {
     }
 })
 //Get All Donars
-router.get("/Donars",async (req,res)=>{
+router.get("/Donars", async (req, res) => {
     try {
         const donars = await Donar.find();
         if (donars.length >= 1) {
@@ -306,7 +306,7 @@ router.post("/donarEdit", varifyToken, async (req, res) => {
             dateOfBirth: req.body.dateOfBirth,
             organ: req.body.organ,
             phoneNo: req.body.phoneNo,
-            address:req.body.address
+            address: req.body.address
         }, { new: true })
             .then(EditDonars => {
                 if (!EditDonars) {
@@ -557,14 +557,20 @@ router.get("/DoctorAndHospital", async (req, res) => {
 
 // Saving new organ from admin 
 router.post("/Organ", upload.single('avatar'), varifyToken, async (req, res, next) => {
-    jwt.verify(req.token, 'mian12345', (err, authData) => {
-        if (err) {
-            res.sendStatus(403);
-        }
-        else {
-            CreateNewOrgan();
-        }
-    })
+    try {
+        jwt.verify(req.token, 'mian12345', (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+                res.send(err)
+            }
+            else {
+                CreateNewOrgan();
+            }
+        })
+    }
+    catch (e) {
+        res.status(500).send(e);
+    }
     async function CreateNewOrgan() {
         const result = await cloudinary.uploader.upload(req.file.path, {
             public_id: `${req.body.userID}_avatar`,

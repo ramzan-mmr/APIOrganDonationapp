@@ -836,6 +836,26 @@ router.post("/Request",varifyToken2, async (req, res) => {
         })
     }
 })
+// Get All request by hospital ID
+router.get("/Request/:id", async (req, res) => {
+    try {
+        const HosId = req.params.id;
+        const Data = await ReqForOrgan.find({HosId:HosId});
+        if (!Data) {
+            return res.status(404).send();
+        }
+        else {
+            res.json({
+                status:"SUCCESS",
+                message:"Record Found",
+                data:Data
+            })
+        }
+    }
+    catch (e) {
+        res.send(e);
+    }
+})
 
 
 //varifyToken

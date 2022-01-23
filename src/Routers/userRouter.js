@@ -8,11 +8,13 @@ const router = new express.Router();
 const OrganListName = require("../models/OrganListName")
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const jwt_decode = require('jwt-decode');
 const validator = require('validator')
 const multer = require('multer')
 const cloudinary = require('../../helper/imageUpload');
 const cors = require('cors');
 const PortalUser = require("../models/PortalUser");
+const ReqForOrgan = require("../models/ReqForOrgan");
 const storage = multer.diskStorage({
     // destination: function (req, file, cb) {
     //     cb(null, "./uploads/");
@@ -556,7 +558,7 @@ router.get("/DoctorAndHospital", async (req, res) => {
 })
 
 // Saving new organ from admin 
-router.post("/Organ",varifyToken, upload.single('avatar'), async (req, res) => {
+router.post("/Organ", varifyToken, upload.single('avatar'), async (req, res) => {
 
     try {
         jwt.verify(req.token, 'mian12345', (err, authData) => {
@@ -800,6 +802,42 @@ router.get("/portaluser", async (req, res) => {
 })
 //End here
 
+//Request for organ
+router.post("/Request",varifyToken2, async (req, res) => {
+    try {
+        const request = new ReqForOrgan(req.body);
+        const creatRequest = await request.save();
+        jwt.verify(req.token, 'mian12345', (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+            }
+            else {
+                if(creatRequest){
+                    res.json({
+                        status: "SUCCESS",
+                        message: "Registration Successfully",
+                        data: creatRequest,
+                    })
+                }
+                else{
+                    res.json({
+                        status: "FAILED",
+                        message: "registration Failed",
+                    }) 
+                }
+            }
+        })  
+    }
+    catch (e) {
+        res.status(400).send(e);
+        res.json({
+            status: "FAILED",
+            message: "SignUp FAILED"
+        })
+    }
+})
+
+
 //varifyToken
 function varifyToken(req, res, next) {
     const bearerHeader = req.headers['authorization'];
@@ -808,6 +846,25 @@ function varifyToken(req, res, next) {
         const bearerToken = bearer[1];
         req.token = bearerToken;
         next();
+    }
+    else {
+        res.sendStatus(403)
+    }
+}
+//verify token request for new organ
+function varifyToken2(req, res, next) {
+    const bearerHeader = req.headers['authorization'];
+    const userDecode = jwt_decode(bearerHeader)
+    if (userDecode.Role === "Admin") {
+        if (typeof bearerHeader !== 'undefined') {
+            const bearer = bearerHeader.split(' ');
+            const bearerToken = bearer[1];
+            req.token = bearerToken;
+            next();
+        }
+        else {
+            res.sendStatus(403)
+        }
     }
     else {
         res.sendStatus(403)

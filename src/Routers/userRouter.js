@@ -803,7 +803,7 @@ router.get("/portaluser", async (req, res) => {
 //End here
 
 //Request for organ
-router.post("/Request",varifyToken2, async (req, res) => {
+router.post("/Request", varifyToken2, async (req, res) => {
     try {
         const request = new ReqForOrgan(req.body);
         const creatRequest = await request.save();
@@ -812,21 +812,21 @@ router.post("/Request",varifyToken2, async (req, res) => {
                 res.sendStatus(403);
             }
             else {
-                if(creatRequest){
+                if (creatRequest) {
                     res.json({
                         status: "SUCCESS",
                         message: "Registration Successfully",
                         data: creatRequest,
                     })
                 }
-                else{
+                else {
                     res.json({
                         status: "FAILED",
                         message: "registration Failed",
-                    }) 
+                    })
                 }
             }
-        })  
+        })
     }
     catch (e) {
         res.status(400).send(e);
@@ -836,19 +836,19 @@ router.post("/Request",varifyToken2, async (req, res) => {
         })
     }
 })
-// Get All request by hospital ID
+// Get All request by hospital ID hospital and admin
 router.get("/Request/:id", async (req, res) => {
     try {
         const HosId = req.params.id;
-        const Data = await ReqForOrgan.find({HosId:HosId});
+        const Data = await ReqForOrgan.find({ HosId: HosId });
         if (!Data) {
             return res.status(404).send();
         }
         else {
             res.json({
-                status:"SUCCESS",
-                message:"Record Found",
-                data:Data
+                status: "SUCCESS",
+                message: "Record Found",
+                data: Data
             })
         }
     }
@@ -856,7 +856,55 @@ router.get("/Request/:id", async (req, res) => {
         res.send(e);
     }
 })
-
+//Delete the request hospital and admin
+router.delete("/RequestDelete/:id", varifyToken3, async (req, res) => {
+    const DeleteRequest = await ReqForOrgan.findByIdAndDelete(req.params.id);
+    try {
+        jwt.verify(req.token, 'mian12345', (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+            }
+            else {
+                if (DeleteRequest) {
+                    res.json({
+                        status: "SUCCESS",
+                        message: "Request Delete successfully",
+                    })
+                }
+                else {
+                    res.json({
+                        status: "FAILED",
+                        message: "Request Delete FAILED",
+                    })
+                }
+            }
+        })
+    } catch (e) {
+        res.status(500).send(e);
+    }
+})
+//Edit the request by hospital and admin 
+router.post("/RequestEdit/:id", varifyToken3, async (req, res) => {
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        }
+        else {
+            ReqForOrgan.findByIdAndUpdate(req.params.id, req.body, (err, emp) => {
+                if (err) {
+                    res.json({
+                        status: "FAILED",
+                        message: "Problem with Updating the  record " 
+                    })
+                };
+                res.json({
+                    status: "SUCCESS",
+                    message: "Record Updated successfully" 
+                })
+            })
+        }
+    })
+})
 
 //varifyToken
 function varifyToken(req, res, next) {
@@ -876,6 +924,35 @@ function varifyToken2(req, res, next) {
     const bearerHeader = req.headers['authorization'];
     const userDecode = jwt_decode(bearerHeader)
     if (userDecode.Role === "Hospital") {
+        if (typeof bearerHeader !== 'undefined') {
+            const bearer = bearerHeader.split(' ');
+            const bearerToken = bearer[1];
+            req.token = bearerToken;
+            next();
+        }
+        else {
+            res.sendStatus(403)
+        }
+    }
+    else {
+        res.sendStatus(403)
+    }
+}
+function varifyToken3(req, res, next) {
+    const bearerHeader = req.headers['authorization'];
+    const userDecode = jwt_decode(bearerHeader)
+    if (userDecode.Role === "Admin") {
+        if (typeof bearerHeader !== 'undefined') {
+            const bearer = bearerHeader.split(' ');
+            const bearerToken = bearer[1];
+            req.token = bearerToken;
+            next();
+        }
+        else {
+            res.sendStatus(403)
+        }
+    }
+    else if (userDecode.Role === "Hospital") {
         if (typeof bearerHeader !== 'undefined') {
             const bearer = bearerHeader.split(' ');
             const bearerToken = bearer[1];

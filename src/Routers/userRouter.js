@@ -894,14 +894,37 @@ router.post("/RequestEdit/:id", varifyToken3, async (req, res) => {
                 if (err) {
                     res.json({
                         status: "FAILED",
-                        message: "Problem with Updating the  record " 
+                        message: "Problem with Updating the record "
                     })
                 };
                 res.json({
                     status: "SUCCESS",
-                    message: "Record Updated successfully" 
+                    message: "Record Updated successfully"
                 })
             })
+        }
+    })
+})
+router.get("/allRequest", varifyToken, async (req, res) => {
+    const result = await ReqForOrgan.find()
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        }
+        else {
+            if (result.length >= 1) {
+                res.json({
+                    status: "SUCCESS",
+                    message: "record found",
+                    data:result
+                })
+            }
+            else {
+                res.json({
+                    status: "FAILED",
+                    message: "No Record Found"
+                })
+            }
         }
     })
 })

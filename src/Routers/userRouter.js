@@ -875,7 +875,7 @@ function varifyToken(req, res, next) {
 function varifyToken2(req, res, next) {
     const bearerHeader = req.headers['authorization'];
     const userDecode = jwt_decode(bearerHeader)
-    if (userDecode.Role === "Admin") {
+    if (userDecode.Role === "Hospital") {
         if (typeof bearerHeader !== 'undefined') {
             const bearer = bearerHeader.split(' ');
             const bearerToken = bearer[1];

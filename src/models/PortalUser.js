@@ -16,7 +16,8 @@ const PortalUserSchema = new mongoose.Schema({
     },
     IsActive: {
         type: Boolean,
-        required: true
+        required: true,
+        default:true
     },
     CreatedON: {
         type: Date,

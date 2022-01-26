@@ -361,6 +361,13 @@ router.post("/DonarsRecod", async (req, res) => {
 //Registration of new hospital
 router.post("/hospital/addHospital", async (req, res) => {
     try {
+        const user = new PortalUser({
+            Name:req.body.Name,
+            UserName: req.body.UserName,
+            Password: req.body.Password,
+            Role:req.body.Role
+        });
+        console.log(user)
         const hospital = new Hospital(req.body);
         const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
         const validEmail = Hospital.find({ Email: req.body.Email })
@@ -384,6 +391,7 @@ router.post("/hospital/addHospital", async (req, res) => {
         }
         else {
             const createHospital = await hospital.save();
+            const createPortalUser = await user.save();
             res.json({
                 status: "SUCCESS",
                 message: "Hospital Registration Successfully",

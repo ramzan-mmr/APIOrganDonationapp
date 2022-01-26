@@ -758,33 +758,38 @@ router.post("/portalLogin", async (req, res) => {
         })
 })
 //Add New user in Portal 
-router.post("/addportalUser", async (req, res) => {
-    try {
-        const user = new PortalUser(req.body);
-        const validUserName = await PortalUser.find({ UserName: req.body.UserName })
-        console.log(validUserName)
-        if (validUserName.length > 0) {
-            res.json({
-                status: "FAILED",
-                message: "This user already register.",
-            })
-        }
-        else {
-            const createuser = await user.save();
-            res.json({
-                status: "SUCCESS",
-                message: "New User register Successfully",
-                data: createuser,
-            })
-        }
-    }
-    catch (e) {
-        res.status(400).send(e);
-        res.json({
-            status: "FAILED",
-            message: "SignUp FAILED"
+router.post("/addportalUser",varifyToken4, async (req, res) => {
+    const user = new PortalUser(req.body);
+    const validUserName = await PortalUser.find({ UserName: req.body.UserName })
+        jwt.verify(req.token, 'mian12345', (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+            }
+            else {
+                if (validUserName.length > 0) {
+                    res.json({
+                        status: "FAILED",
+                        message: "This user already register.",
+                    })
+                }
+                else {
+                    const createuser = await user.save();
+                    if(createuser){
+                        res.json({
+                            status: "SUCCESS",
+                            message: "New User register Successfully",
+                            data: createuser,
+                        })
+                    }
+                    else{
+                        res.json({
+                            status: "FAILED",
+                            message: "New User register FAILED",
+                        })
+                    }
+                }
+            }
         })
-    }
 })
 //Get all user in portal
 router.get("/portaluser", async (req, res) => {
@@ -984,6 +989,24 @@ function varifyToken3(req, res, next) {
         }
     }
     else if (userDecode.Role === "Hospital") {
+        if (typeof bearerHeader !== 'undefined') {
+            const bearer = bearerHeader.split(' ');
+            const bearerToken = bearer[1];
+            req.token = bearerToken;
+            next();
+        }
+        else {
+            res.sendStatus(403)
+        }
+    }
+    else {
+        res.sendStatus(403)
+    }
+}
+function varifyToken4(req, res, next) {
+    const bearerHeader = req.headers['authorization'];
+    const userDecode = jwt_decode(bearerHeader)
+    if (userDecode.Role === "Admin") {
         if (typeof bearerHeader !== 'undefined') {
             const bearer = bearerHeader.split(' ');
             const bearerToken = bearer[1];

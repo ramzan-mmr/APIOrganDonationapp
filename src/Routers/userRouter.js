@@ -761,6 +761,7 @@ router.post("/portalLogin", async (req, res) => {
 router.post("/addportalUser",varifyToken4, async (req, res) => {
     const user = new PortalUser(req.body);
     const validUserName = await PortalUser.find({ UserName: req.body.UserName })
+    const createuser = await user.save();
         jwt.verify(req.token, 'mian12345', (err, authData) => {
             if (err) {
                 res.sendStatus(403);
@@ -773,7 +774,6 @@ router.post("/addportalUser",varifyToken4, async (req, res) => {
                     })
                 }
                 else {
-                    const createuser = await user.save();
                     if(createuser){
                         res.json({
                             status: "SUCCESS",

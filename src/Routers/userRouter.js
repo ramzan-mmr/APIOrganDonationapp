@@ -943,12 +943,22 @@ router.get("/allRequest", varifyToken, async (req, res) => {
 })
 // Fetch the Matched result
 router.post("/matchedData", varifyToken3, async (req, res) => {
+    const result = await Donar.find({
+        Age:req.body.Age,
+        organ:req.body.organ,
+        state:req.body.state
+    })
+    console.log(result)
     jwt.verify(req.token, 'mian12345', (err, authData) => {
         if (err) {
             res.sendStatus(403);
         }
         else{
-
+            res.json({
+                status:"SUCCESS",
+                message:"Record Found",
+                data:result.length
+            })
         }
     })
 })

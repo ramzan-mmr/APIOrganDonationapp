@@ -39,6 +39,9 @@ const donarSchema = new mongoose.Schema({
         required:true,
         default:"Pakistan"
     },
+    Age:{
+        type:String
+    },
     CreatedON:{
         type:Date,
         default: Date.now

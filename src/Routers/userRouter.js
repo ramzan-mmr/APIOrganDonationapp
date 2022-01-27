@@ -362,10 +362,10 @@ router.post("/DonarsRecod", async (req, res) => {
 router.post("/hospital/addHospital", async (req, res) => {
     try {
         const user = new PortalUser({
-            Name:req.body.Name,
+            Name: req.body.Name,
             UserName: req.body.UserName,
             Password: req.body.Password,
-            Role:req.body.Role
+            Role: req.body.Role
         });
         console.log(user)
         const hospital = new Hospital(req.body);
@@ -758,38 +758,38 @@ router.post("/portalLogin", async (req, res) => {
         })
 })
 //Add New user in Portal 
-router.post("/addportalUser",varifyToken4, async (req, res) => {
+router.post("/addportalUser", varifyToken4, async (req, res) => {
     const user = new PortalUser(req.body);
     const validUserName = await PortalUser.find({ UserName: req.body.UserName })
     const createuser = await user.save();
-        jwt.verify(req.token, 'mian12345', (err, authData) => {
-            if (err) {
-                res.sendStatus(403);
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        }
+        else {
+            if (validUserName.length > 0) {
+                res.json({
+                    status: "FAILED",
+                    message: "This user already register.",
+                })
             }
             else {
-                if (validUserName.length > 0) {
+                if (createuser) {
                     res.json({
-                        status: "FAILED",
-                        message: "This user already register.",
+                        status: "SUCCESS",
+                        message: "New User register Successfully",
+                        data: createuser,
                     })
                 }
                 else {
-                    if(createuser){
-                        res.json({
-                            status: "SUCCESS",
-                            message: "New User register Successfully",
-                            data: createuser,
-                        })
-                    }
-                    else{
-                        res.json({
-                            status: "FAILED",
-                            message: "New User register FAILED",
-                        })
-                    }
+                    res.json({
+                        status: "FAILED",
+                        message: "New User register FAILED",
+                    })
                 }
             }
-        })
+        }
+    })
 })
 //Get all user in portal
 router.get("/portaluser", async (req, res) => {
@@ -819,7 +819,7 @@ router.get("/portaluser", async (req, res) => {
 router.post("/Request", varifyToken2, async (req, res) => {
     try {
         const request = new ReqForOrgan(req.body);
-        
+
         jwt.verify(req.token, 'mian12345', (err, authData) => {
             if (err) {
                 res.sendStatus(403);
@@ -929,7 +929,7 @@ router.get("/allRequest", varifyToken, async (req, res) => {
                 res.json({
                     status: "SUCCESS",
                     message: "record found",
-                    data:result
+                    data: result
                 })
             }
             else {
@@ -938,6 +938,17 @@ router.get("/allRequest", varifyToken, async (req, res) => {
                     message: "No Record Found"
                 })
             }
+        }
+    })
+})
+// Fetch the Matched result
+router.post("/matchedData", varifyToken3, async (req, res) => {
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        }
+        else{
+
         }
     })
 })

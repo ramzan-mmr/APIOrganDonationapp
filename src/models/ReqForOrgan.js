@@ -39,6 +39,9 @@ const ReqForOrganSchema = new mongoose.Schema({
         type: String,
         required: true,
     } ,
+    Age:{
+        type: String,
+    },
     isActive:{
         type:Boolean,
         default: true

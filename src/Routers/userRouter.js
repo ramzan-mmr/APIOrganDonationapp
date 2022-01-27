@@ -819,17 +819,17 @@ router.get("/portaluser", async (req, res) => {
 router.post("/Request", varifyToken2, async (req, res) => {
     try {
         const request = new ReqForOrgan(req.body);
-        const creatRequest = await request.save();
+        
         jwt.verify(req.token, 'mian12345', (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             }
             else {
+                const creatRequest = request.save();
                 if (creatRequest) {
                     res.json({
                         status: "SUCCESS",
                         message: "Registration Successfully",
-                        data: creatRequest,
                     })
                 }
                 else {

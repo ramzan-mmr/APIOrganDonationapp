@@ -33,7 +33,12 @@ const donarSchema = new mongoose.Schema({
     },
     description:{
         type: String,
-    }, 
+    },
+    state:{
+        type:String,
+        required:true,
+        default:"Pakistan"
+    },
     CreatedON:{
         type:Date,
         default: Date.now

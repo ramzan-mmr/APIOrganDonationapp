@@ -956,7 +956,8 @@ router.post("/matchedData", varifyToken3, async (req, res) => {
             res.json({
                 status:"SUCCESS",
                 message:"Record Found",
-                data:result.length
+                data:result,
+                count:result.length
             })
         }
     })

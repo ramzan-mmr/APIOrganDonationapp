@@ -945,8 +945,7 @@ router.get("/allRequest", varifyToken, async (req, res) => {
 router.post("/matchedData", varifyToken3, async (req, res) => {
     const result = await Donar.find({
         Age:req.body.Age,
-        organ:req.body.organ,
-        state:req.body.state
+        organ:req.body.organ
     })
     console.log(result)
     jwt.verify(req.token, 'mian12345', (err, authData) => {

@@ -229,17 +229,23 @@ router.post("/Login", cors(), (req, res) => {
 })
 //Donar Registration 
 router.post("/Donars", async (req, res) => {
-    console.log(req)
+    const isRegisterAsDonar = find({ donarID: req.body.donarID })
     try {
         const donar = new Donar(req.body);
-
-        const createDonar = await donar.save();
-        res.json({
-            status: "SUCCESS",
-            message: "Donar Registration Successfully...",
-            data: createDonar,
-        })
-
+        if (isRegisterAsDonar) {
+            res.json({
+                status: "FAILED",
+                message: "You Already Register as donar...",
+            })
+        }
+        else {
+            const createDonar = await donar.save();
+            res.json({
+                status: "SUCCESS",
+                message: "Donar Registration Successfully...",
+                data: createDonar,
+            })
+        }
     }
     catch (e) {
         res.send(e);
@@ -1012,7 +1018,6 @@ router.post("/donarTransPlantcomp", varifyToken2, async (req, res) => {
             res.json({
                 status: "SUCCESS",
                 message: "Complete",
-                data: result
             })
         }
         else {

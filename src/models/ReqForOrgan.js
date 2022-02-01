@@ -48,7 +48,7 @@ const ReqForOrganSchema = new mongoose.Schema({
     },
     Status:{
         type:String,
-        default: "Pending"
+        default: "Requested"
     },
     CreatedON:{
         type:Date,

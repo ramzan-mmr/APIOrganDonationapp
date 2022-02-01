@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    isDonateOrgan:{
+        type:Boolean,
+        default:false
+    },
     CreatedON:{
         type:Date,
         default: Date.now

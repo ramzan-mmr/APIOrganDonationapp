@@ -582,6 +582,7 @@ router.post("/Organ", varifyToken, upload.single('avatar'), async (req, res) => 
     }
 
     async function CreateNewOrgan() {
+        console.log(req.file.path)
         const result = await cloudinary.uploader.upload(req.file.path, {
             public_id: `${req.body.userID}_avatar`,
             crop: 'fill'
@@ -944,23 +945,51 @@ router.get("/allRequest", varifyToken, async (req, res) => {
 // Fetch the Matched result
 router.post("/matchedData", varifyToken3, async (req, res) => {
     const result = await Donar.find({
-        Age:req.body.Age,
-        organ:req.body.organ
+        Age: req.body.Age,
+        organ: req.body.organ
     })
     console.log(result)
     jwt.verify(req.token, 'mian12345', (err, authData) => {
         if (err) {
             res.sendStatus(403);
         }
-        else{
+        else {
             res.json({
-                status:"SUCCESS",
-                message:"Record Found",
-                data:result,
-                count:result.length
+                status: "SUCCESS",
+                message: "Record Found",
+                data: result,
+                count: result.length
             })
         }
     })
+})
+//Selected User API
+router.post("/selectDonar", varifyToken2, async (req, res) => {
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        }
+        else {
+            updateDonar();
+        }
+    })
+    async function updateDonar() {
+        const result = await Donar.findByIdAndUpdate(req.body._id, {
+            IsSelect: true
+        })
+        if (result) {
+            res.json({
+                status: "SUCCESS",
+                message: "Donar Selected Successfully"
+            })
+        }
+        else {
+            res.json({
+                status: "FAILED",
+                message: "Not Selected",
+            })
+        }
+    }
 })
 
 //varifyToken

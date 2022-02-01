@@ -42,6 +42,14 @@ const donarSchema = new mongoose.Schema({
     Age:{
         type:String
     },
+    IsActive:{
+        type: Boolean,
+        default: true
+    },
+    IsSelect:{
+        type: Boolean,
+        default: false
+    },
     CreatedON:{
         type:Date,
         default: Date.now

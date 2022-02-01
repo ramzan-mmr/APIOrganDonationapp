@@ -991,7 +991,38 @@ router.post("/selectDonar", varifyToken2, async (req, res) => {
         }
     }
 })
-
+router.post("/donarTransPlantcomp", varifyToken2, async (req, res) => {
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        }
+        else {
+            updateData();
+        }
+    })
+    async function updateData() {
+        const result = await Donar.findByIdAndUpdate(req.body.donarID, {
+            IsActive: false
+        })
+        const result2 = await ReqForOrgan.findByIdAndUpdate(req.body.RequestID, {
+            isActive: false,
+            Status: req.body.Status
+        })
+        if (result && result2) {
+            res.json({
+                status: "SUCCESS",
+                message: "Complete",
+                data: result
+            })
+        }
+        else {
+            res.json({
+                status: "FAILED",
+                message: "Not Complete",
+            })
+        }
+    }
+})
 //varifyToken
 function varifyToken(req, res, next) {
     const bearerHeader = req.headers['authorization'];

@@ -671,6 +671,27 @@ router.get("/Organ", async (req, res) => {
         res.send(e);
     }
 })
+router.get("/OrganForApplication", async (req, res) => {
+    try {
+        const organ = await ReqForOrgan.find();
+        if (organ.length >= 1) {
+            res.json({
+                status: "SUCCESS",
+                message: "record found",
+                data: organ
+            })
+        }
+        else {
+            res.json({
+                status: "FAILED",
+                message: "No Record Found"
+            })
+        }
+    }
+    catch (e) {
+        res.send(e);
+    }
+})
 
 // Organ in names in dropdown
 router.post("/newOrgan", async (req, res) => {

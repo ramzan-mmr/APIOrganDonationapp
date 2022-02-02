@@ -229,30 +229,35 @@ router.post("/Login", cors(), (req, res) => {
 })
 //Donar Registration 
 router.post("/Donars", async (req, res) => {
-    const isRegisterAsDonar = find({ donarID: req.body.donarID })
-    try {
-        const donar = new Donar(req.body);
-        if (isRegisterAsDonar) {
+    const findDonar = await Donar.find({
+        donarID: req.body.donarID
+    });
+    console.log(findDonar.length)
+    if (findDonar.length < 1) {
+        createDonar();
+    }
+    else {
+        res.json({
+            status: "FAILED",
+            message: "You are already register as donar"
+        })
+    }
+    async function createDonar() {
+        const donar = new Donar(req.body)
+        const createDonar = await donar.save()
+        if (!createDonar) {
             res.json({
                 status: "FAILED",
-                message: "You Already Register as donar...",
+                message: "Donar register Failed..."
             })
         }
         else {
-            const createDonar = await donar.save();
             res.json({
                 status: "SUCCESS",
-                message: "Donar Registration Successfully...",
-                data: createDonar,
+                message: "Donar register successfully...",
+                data: createDonar
             })
         }
-    }
-    catch (e) {
-        res.send(e);
-        res.json({
-            status: "FAILED",
-            message: "Donar Registration FAILED..."
-        })
     }
 })
 //Get All Donars

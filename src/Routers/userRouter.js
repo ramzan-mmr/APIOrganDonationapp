@@ -370,7 +370,7 @@ router.post("/donarEdit", varifyToken, async (req, res) => {
 router.post("/DonarsRecod", async (req, res) => {
     console.log(req.body.organName)
     try {
-        Donar.find({ organ: req.body.organName })
+        ReqForOrgan.find({ PatRequired: req.body.organName })
             .then(result => {
                 if (result.length < 1) {
                     res.status(401).json({

@@ -266,15 +266,18 @@ router.get("/GetDonarData/:id", async (req, res) => {
         const donarID = req.params.id;
         const Data = await Donar.find({ donarID: donarID });
         console.log(Data)
-        if (!Data) {
-            return res.status(404).send();
-        }
-        else {
+        if (Data.length > 0) {
             res.json({
                 status: "SUCCESS",
                 message: "Record Found",
                 data: Data
             })
+        }
+        else {
+            res.json({
+                status: "FAILED",
+                message: "Record Not Found",
+            }) 
         }
     }
     catch (e) {

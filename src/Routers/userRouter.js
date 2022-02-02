@@ -260,6 +260,26 @@ router.post("/Donars", async (req, res) => {
         }
     }
 })
+//Donar data for Profile
+router.post("/GetDonarData/:_id", async (req, res) => {
+    const donardata = await Donar.findById(req.params._id);
+    try {
+        if (!donardata) {
+            res.json({
+                status: "FAILED",
+                message: "Donar Not Find"
+            })
+        } else {
+            res.json({
+                status: "SUCCESS",
+                message: "Donar Find successfully",
+                data: donardata
+            })
+        }
+    } catch (e) {
+        res.status(500).send(e);
+    }
+})
 //Get All Donars
 router.get("/Donars", async (req, res) => {
     try {

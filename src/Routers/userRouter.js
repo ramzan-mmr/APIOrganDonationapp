@@ -261,8 +261,9 @@ router.post("/Donars", async (req, res) => {
     }
 })
 //Donar data for Profile
-router.post("/GetDonarData/:_id", async (req, res) => {
-    const donardata = await Donar.findById(req.params._id);
+router.get("/GetDonarData/:_id", async (req, res) => {
+    const donarID=req.params._id
+    const donardata = await Donar.find({donarID:donarID});
     try {
         if (!donardata) {
             res.json({

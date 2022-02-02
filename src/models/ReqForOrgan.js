@@ -27,14 +27,14 @@ const ReqForOrganSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    HosName:{
-        type: String,
-        required: true,
-    },
-    HosLocation:{
-        type: String,
-        required:true
-    },
+    // HosName:{
+    //     type: String,
+    //     required: true,
+    // },
+    // HosLocation:{
+    //     type: String,
+    //     required:true
+    // },
     Description:{
         type: String,
         required: true,

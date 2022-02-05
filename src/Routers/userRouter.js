@@ -602,7 +602,10 @@ router.get("/DoctorAndHospital", async (req, res) => {
 
 // Saving new organ from admin 
 router.post("/Organ", varifyToken, upload.single('avatar'), async (req, res) => {
-
+    res.json({
+        status: "Hit",
+        message: "API Hit successfully",
+    })
     try {
         jwt.verify(req.token, 'mian12345', (err, authData) => {
             if (err) {
@@ -617,6 +620,10 @@ router.post("/Organ", varifyToken, upload.single('avatar'), async (req, res) => 
     }
 
     async function CreateNewOrgan() {
+        res.json({
+            status: "Hit",
+            message: "API Hit successfully",
+        })
         console.log(req.file.path)
         const result = await cloudinary.uploader.upload(req.file.path, {
             public_id: `${req.body.userID}_avatar`,

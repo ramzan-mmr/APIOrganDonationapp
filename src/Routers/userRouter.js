@@ -602,6 +602,7 @@ router.get("/DoctorAndHospital", async (req, res) => {
 
 // Saving new organ from admin 
 router.post("/Organ", upload.single('avatar'), async (req, res) => {
+    console.log(req)
     try {
         const file = req.file.path  
         const result = await cloudinary.uploader.upload(file)
@@ -620,6 +621,7 @@ router.post("/Organ", upload.single('avatar'), async (req, res) => {
             res.json({
                 status: "FAILED",
                 message: "Not found with this ID",
+                data:result
             })
         }
         else {

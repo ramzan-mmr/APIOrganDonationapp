@@ -603,16 +603,13 @@ router.get("/DoctorAndHospital", async (req, res) => {
 // Saving new organ from admin 
 router.post("/Organ", upload.single('avatar'), async (req, res) => {
     try {
-        console.log(req.file.path)
-        const result = await cloudinary.uploader.upload(req.file.path, {
-            public_id: `${req.body.userID}_avatar`,
-            crop: 'fill'
-        })
+        const file = req.file.path  
+        const result = await cloudinary.uploader.upload(file)
         const organ = new Organ({
             organName: req.body.organName,
             avatar: result.secure_url,
             isActive: req.body.isActive,
-            userID: req.body.userID
+            userID: req.body.userID 
         });
         const organListName = new OrganListName({
             organName: req.body.organName

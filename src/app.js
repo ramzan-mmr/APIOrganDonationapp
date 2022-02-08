@@ -4,7 +4,7 @@ require("./dbConnection/conn.js");
 const userRouter = require("./Routers/userRouter");
 const {createProxyMiddleware} = require("http-proxy-middleware")
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 
 //Insert data in user collection and getting from API and
 app.use(express.json());

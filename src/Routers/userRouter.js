@@ -621,7 +621,6 @@ router.post("/Organ", upload.single('avatar'), async (req, res) => {
             res.json({
                 status: "FAILED",
                 message: "Not found with this ID",
-                data:result
             })
         }
         else {
@@ -632,7 +631,12 @@ router.post("/Organ", upload.single('avatar'), async (req, res) => {
             })
         }
     } catch (error) {
-        res.send(error)
+        console.log(error)
+        res.json({
+            status: "FAILED",
+            message: "Ofasdfaklsdfja;klsdjf;klajsd;fkl",
+            data: error,
+        })
     }
 })
 
@@ -862,26 +866,22 @@ router.get("/portaluser", async (req, res) => {
 //Request for organ
 router.post("/Request", varifyToken2, async (req, res) => {
     try {
-        const request = new ReqForOrgan(req.body);
-
+        const current = new Date();
+        const limit = await ReqForOrgan.find(req.body.CreatedON,{
+            CreatedON:current
+        })
         jwt.verify(req.token, 'mian12345', (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             }
+            else if(limit.length > 2){
+                res.json({
+                    status: "FAILED",
+                    message: "You exceeded today limit..."
+                })
+            }
             else {
-                const creatRequest = request.save();
-                if (creatRequest) {
-                    res.json({
-                        status: "SUCCESS",
-                        message: "Registration Successfully",
-                    })
-                }
-                else {
-                    res.json({
-                        status: "FAILED",
-                        message: "registration Failed",
-                    })
-                }
+                 SavaData(); 
             }
         })
     }
@@ -891,6 +891,22 @@ router.post("/Request", varifyToken2, async (req, res) => {
             status: "FAILED",
             message: "SignUp FAILED"
         })
+    }
+    async function SavaData(){
+        const request = new ReqForOrgan(req.body);
+        const creatRequest = await request.save();
+        if (creatRequest) {
+            res.json({
+                status: "SUCCESS",
+                message: "Registration Successfully",
+            })
+        }
+        else {
+            res.json({
+                status: "FAILED",
+                message: "registration Failed",
+            })
+        }
     }
 })
 // Get All request by hospital ID hospital and admin

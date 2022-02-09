@@ -277,7 +277,7 @@ router.get("/GetDonarData/:id", async (req, res) => {
             res.json({
                 status: "FAILED",
                 message: "Record Not Found",
-            }) 
+            })
         }
     }
     catch (e) {
@@ -604,13 +604,13 @@ router.get("/DoctorAndHospital", async (req, res) => {
 router.post("/Organ", upload.single('avatar'), async (req, res) => {
     console.log(req)
     try {
-        const file = req.file.path  
+        const file = req.file.path
         const result = await cloudinary.uploader.upload(file)
         const organ = new Organ({
             organName: req.body.organName,
             avatar: result.secure_url,
             isActive: req.body.isActive,
-            userID: req.body.userID 
+            userID: req.body.userID
         });
         const organListName = new OrganListName({
             organName: req.body.organName
@@ -866,22 +866,24 @@ router.get("/portaluser", async (req, res) => {
 //Request for organ
 router.post("/Request", varifyToken2, async (req, res) => {
     try {
-        const current = new Date();
-        const limit = await ReqForOrgan.find(req.body.CreatedON,{
-            CreatedON:current
+        const CreatedON = new Date();
+        const name = "ramzan"
+        const limit = await ReqForOrgan.find(req.body,{
+            HosId:req.body.HosId,
+            CreatedON: 'CreatedON'
         })
         jwt.verify(req.token, 'mian12345', (err, authData) => {
             if (err) {
                 res.sendStatus(403);
             }
-            else if(limit.length > 2){
+            else if (limit.length >= 2) {
                 res.json({
                     status: "FAILED",
                     message: "You exceeded today limit..."
                 })
             }
             else {
-                 SavaData(); 
+                SavaData();
             }
         })
     }
@@ -892,7 +894,7 @@ router.post("/Request", varifyToken2, async (req, res) => {
             message: "SignUp FAILED"
         })
     }
-    async function SavaData(){
+    async function SavaData() {
         const request = new ReqForOrgan(req.body);
         const creatRequest = await request.save();
         if (creatRequest) {

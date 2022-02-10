@@ -867,9 +867,8 @@ router.get("/portaluser", async (req, res) => {
 router.post("/Request", varifyToken2, async (req, res) => {
     try {
         const CreatedON = new Date();
-        const name = "ramzan"
-        const limit = await ReqForOrgan.find(req.body,{
-            HosId:req.body.HosId,
+        const limit = await ReqForOrgan.find(req.body, {
+            HosId: req.body.HosId,
             CreatedON: 'CreatedON'
         })
         jwt.verify(req.token, 'mian12345', (err, authData) => {
@@ -1007,7 +1006,8 @@ router.get("/allRequest", varifyToken, async (req, res) => {
 router.post("/matchedData", varifyToken3, async (req, res) => {
     const result = await Donar.find({
         Age: req.body.Age,
-        organ: req.body.organ
+        organ: req.body.organ,
+        IsSelect: false
     })
     console.log(result)
     jwt.verify(req.token, 'mian12345', (err, authData) => {
@@ -1024,8 +1024,28 @@ router.post("/matchedData", varifyToken3, async (req, res) => {
         }
     })
 })
+// Fetch the Matched result
+router.post("/selectedRecord", varifyToken3, async (req, res) => {
+    const result = await Donar.find({
+        IsSelect: true,
+        RequestID:req.body.RequestID
+    })
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        }
+        else {
+            res.json({
+                status: "SUCCESS",
+                message: "Record Found",
+                data: result
+            })
+        }
+    })
+})
 //Selected User API
 router.post("/selectDonar", varifyToken2, async (req, res) => {
+
     jwt.verify(req.token, 'mian12345', (err, authData) => {
         if (err) {
             res.sendStatus(403);
@@ -1035,20 +1055,42 @@ router.post("/selectDonar", varifyToken2, async (req, res) => {
         }
     })
     async function updateDonar() {
-        const result = await Donar.findByIdAndUpdate(req.body._id, {
+        const limit = await Donar.find({
+            RequestID: req.body.RequestID
+        })
+        const isSelect = await Donar.findById(req.body._id, {
             IsSelect: true
         })
-        if (result) {
+        if (isSelect.IsSelect === true) {
             res.json({
-                status: "SUCCESS",
-                message: "Donar Selected Successfully"
+                status: "FAILED",
+                message: "Sorry This User is Already selected..."
+            })
+        }
+        else if (limit.length >= 2) {
+            res.json({
+                status: "FAILED",
+                message: "Sorry you can not select more the two Donar,s...."
             })
         }
         else {
-            res.json({
-                status: "FAILED",
-                message: "Not Selected",
+            const result = await Donar.findByIdAndUpdate(req.body._id, {
+                IsSelect: true,
+                IsSelectedByHospital: req.body.HosId,
+                RequestID: req.body.RequestID
             })
+            if (result) {
+                res.json({
+                    status: "SUCCESS",
+                    message: "Donar Selected Successfully"
+                })
+            }
+            else {
+                res.json({
+                    status: "FAILED",
+                    message: "Not Selected",
+                })
+            }
         }
     }
 })

@@ -50,6 +50,12 @@ const donarSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    IsSelectedByHospital:{
+        type:String
+    },
+    RequestID:{
+        type:String
+    },
     CreatedON:{
         type:Date,
         default: Date.now

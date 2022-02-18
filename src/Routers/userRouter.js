@@ -15,6 +15,7 @@ const cloudinary = require('../../helper/imageUpload');
 const cors = require('cors');
 const PortalUser = require("../models/PortalUser");
 const ReqForOrgan = require("../models/ReqForOrgan");
+const TransCompleted = require("../models/TransCompleted");
 const storage = multer.diskStorage({
     // destination: function (req, file, cb) {
     //     cb(null, "./uploads/");
@@ -914,7 +915,7 @@ router.post("/Request", varifyToken2, async (req, res) => {
 router.get("/Request/:id", async (req, res) => {
     try {
         const HosId = req.params.id;
-        const Data = await ReqForOrgan.find({ HosId: HosId });
+        const Data = await ReqForOrgan.find({ HosId: HosId, isActive: true });
         if (!Data) {
             return res.status(404).send();
         }
@@ -1028,7 +1029,7 @@ router.post("/matchedData", varifyToken3, async (req, res) => {
 router.post("/selectedRecord", varifyToken3, async (req, res) => {
     const result = await Donar.find({
         IsSelect: true,
-        RequestID:req.body.RequestID
+        RequestID: req.body.RequestID
     })
     jwt.verify(req.token, 'mian12345', (err, authData) => {
         if (err) {
@@ -1104,6 +1105,7 @@ router.post("/donarTransPlantcomp", varifyToken2, async (req, res) => {
         }
     })
     async function updateData() {
+        const TransCompletedData = new TransCompleted(req.body)
         const result = await Donar.findByIdAndUpdate(req.body.donarID, {
             IsActive: false
         })
@@ -1111,7 +1113,8 @@ router.post("/donarTransPlantcomp", varifyToken2, async (req, res) => {
             isActive: false,
             Status: req.body.Status
         })
-        if (result && result2) {
+        const result3 = await TransCompletedData.save()
+        if (result && result2 && result3) {
             res.json({
                 status: "SUCCESS",
                 message: "Complete",
@@ -1125,6 +1128,49 @@ router.post("/donarTransPlantcomp", varifyToken2, async (req, res) => {
         }
     }
 })
+
+//Get No of Completed TransPlant 
+router.post("/getTransplantedData", varifyToken3, async (req, res) => {
+    jwt.verify(req.token, 'mian12345', (err, authData) => {
+        let Role = authData.Role
+        let HospId = authData._id
+        if (err) {
+            res.sendStatus(403);
+        }
+        else {
+            if (Role === "Hospital") {
+                GetDataForHospital(HospId);
+            }
+            else if (Role === "Admin") {
+                GetDataForAdmin();
+            }
+        }
+    })
+    async function GetDataForHospital(Id) {
+        const result =await TransCompleted.find(({ HospId: Id }))
+        
+        if (result) {
+            const findDonar = await Donar.findById(result.donarID)
+            if(!findDonar){
+                res.json({
+                    status:"FAILED",
+                    message:"Not any record found..."
+                })
+            }
+            else{
+                res.json({
+                    status:"SUCCESS",
+                    message:"Record Found Successfully....",
+                    data:findDonar
+                })
+            }
+        }
+    }
+    async function GetDataForAdmin() {
+
+    }
+})
+
 //varifyToken
 function varifyToken(req, res, next) {
     const bearerHeader = req.headers['authorization'];
